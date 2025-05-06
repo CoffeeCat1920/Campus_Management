@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	modals "what/internal/models"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
@@ -15,12 +16,17 @@ import (
 
 // Service represents a service that interacts with a database.
 type Service interface {
-	// Health returns a map of health status information.
-	// The keys and values in the map are service-specific.
-	Health() map[string]string
 
-	// Close terminates the database connection.
-	// It returns an error if the connection cannot be closed.
+	// Books
+	AddBook(book *modals.Book) error
+	UpdateBookName(uuid string, name string) error
+	GetUUIDFromISBN(isbn string) (string, error)
+	DeleteBook(uuid string) error
+	SearchBooks(name string) ([]modals.Book, error)
+	GetAllBooks() ([]modals.Book, error)
+	ToggleBookAvailiablity(uuid string) error
+
+	Health() map[string]string
 	Close() error
 }
 

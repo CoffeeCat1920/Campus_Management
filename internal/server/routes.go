@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"what/internal/api"
 
 	"github.com/gorilla/mux"
 )
@@ -11,10 +12,14 @@ import (
 func (s *Server) RegisterRoutes() http.Handler {
 	r := mux.NewRouter()
 
-	// Apply CORS middleware
 	r.Use(s.corsMiddleware)
 
-	r.HandleFunc("/", s.HelloWorldHandler)
+	api := api.NewApi()
+	r.HandleFunc("/all_books", api.GetAllBooksHandler).Methods("GET")
+	r.HandleFunc("/books", api.AddBookHandler).Methods("POST")
+	r.HandleFunc("/books/{id}", api.DeleteBookHandler).Methods("DELETE")
+	r.HandleFunc("/books/{id}", api.EditBookHandler).Methods("PATCH")
+	r.HandleFunc("/toggle_books/{id}", api.ToggleBookHandler).Methods("PATCH")
 
 	r.HandleFunc("/health", s.healthHandler)
 

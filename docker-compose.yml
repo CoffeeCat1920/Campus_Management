@@ -11,5 +11,18 @@ services:
     volumes:
       - psql_volume_bp:/var/lib/postgresql/data
 
+  pgAdmin_bp:
+    image: dpage/pgadmin4
+    container_name: pgAdmin_what
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=test@gmail.com # Set the PostgreSQL password
+      - PGADMIN_DEFAULT_PASSWORD=123  # Set the PostgreSQL password
+    ports:
+      - "8888:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    restart: always
+
 volumes:
   psql_volume_bp:
+  pgadmin-data:
