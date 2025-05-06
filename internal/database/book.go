@@ -1,6 +1,9 @@
 package database
 
-import modals "what/internal/models"
+import (
+	"database/sql"
+	modals "what/internal/models"
+)
 
 func (s *service) AddBook(book *modals.Book) error {
 	q := `
@@ -22,23 +25,18 @@ func (s *service) UpdateBookName(uuid string, name string) error {
 	SET name = $1
 	WHERE uuid = $2
   `
-	_, err := s.db.Exec(q, name, uuid)
+	result, err := s.db.Exec(q, name, uuid)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (s *service) UpdateBookGenre(uuid string, genre string) error {
-	q := `
-	UPDATE books
-	SET genre = $1
-	WHERE uuid = $2
-  `
-	_, err := s.db.Exec(q, genre, uuid)
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
+	}
+
+	if rowsAffected <= 0 {
+		return ErrItemNotFound
 	}
 
 	return nil
@@ -73,7 +71,11 @@ func (s *service) IsAvailable(uuid string) (bool, error) {
 	err := row.Scan(&available)
 
 	if err != nil {
-		return false, err
+		if err == sql.ErrNoRows {
+			return false, ErrItemNotFound
+		} else {
+			return false, err
+		}
 	}
 
 	return available, nil
@@ -125,7 +127,7 @@ func (s *service) SearchBooks(name string) ([]modals.Book, error) {
 	return recipes, nil
 }
 
-func (s *service) GetUUIDFromISBN(isbn string) (string, error) {
+func (s *service) GetBookUUIDFromISBN(isbn string) (string, error) {
 	var uuid string
 
 	q := `SELECT uuid FROM books 
@@ -134,7 +136,11 @@ func (s *service) GetUUIDFromISBN(isbn string) (string, error) {
 	row := s.db.QueryRow(q, isbn)
 	err := row.Scan(&uuid)
 	if err != nil {
-		return "", err
+		if err == sql.ErrNoRows {
+			return "", ErrItemNotFound
+		} else {
+			return "", err
+		}
 	}
 
 	return uuid, err

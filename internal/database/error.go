@@ -6,7 +6,6 @@ import (
 )
 
 var ErrItemAlreadyExists = errors.New("Item Already Exists")
-var ErrItemPrimaryKeyExits = errors.New("Primary Key already exists")
 var ErrItemNotFound = errors.New("Item Not Found")
 var ErrItemMismatch = errors.New("Item Mismatch")
 var ErrInternalDatabaseError = errors.New("Internal Database Error")

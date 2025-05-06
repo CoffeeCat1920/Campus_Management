@@ -20,11 +20,28 @@ type Service interface {
 	// Books
 	AddBook(book *modals.Book) error
 	UpdateBookName(uuid string, name string) error
-	GetUUIDFromISBN(isbn string) (string, error)
+	GetBookUUIDFromISBN(isbn string) (string, error)
 	DeleteBook(uuid string) error
 	SearchBooks(name string) ([]modals.Book, error)
 	GetAllBooks() ([]modals.Book, error)
 	ToggleBookAvailiablity(uuid string) error
+
+	// Users
+	AddUser(user *modals.User) error
+	GetUserUUIDFromName(name string) (string, error)
+	NumberOfRentedBooks(uuid string) (int, error)
+	DecreaseRented(uuid string) error
+	IncreaseRented(uuid string) error
+
+	// Borrow
+	AddBorrow(borrow *modals.Borrow) error
+	BorrowFine(uuid string, rate int) (int, error)
+	DeleteBorrow(uuid string) error
+
+	// Request
+	AddRequest(request *modals.Request) error
+	DeleteRequest(uuid string) error
+	GetRequest(uuid string) (*modals.Request, error)
 
 	Health() map[string]string
 	Close() error

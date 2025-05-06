@@ -1,10 +1,9 @@
 package api
 
 import (
+	"github.com/spf13/afero"
 	"net/http"
 	"what/internal/database"
-
-	"github.com/spf13/afero"
 )
 
 type Api interface {
@@ -13,6 +12,15 @@ type Api interface {
 	DeleteBookHandler(w http.ResponseWriter, r *http.Request)
 	EditBookHandler(w http.ResponseWriter, r *http.Request)
 	ToggleBookHandler(w http.ResponseWriter, r *http.Request)
+
+	AddUserHandler(w http.ResponseWriter, r *http.Request)
+
+	AddBorrowHandler(w http.ResponseWriter, r *http.Request)
+	BorrowFineHandler(w http.ResponseWriter, r *http.Request)
+	ReturnBookHandler(w http.ResponseWriter, r *http.Request)
+
+	RequestBorrowHandler(w http.ResponseWriter, r *http.Request)
+	AcceptRequestHandler(w http.ResponseWriter, r *http.Request)
 }
 
 type api struct {

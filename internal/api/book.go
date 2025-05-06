@@ -42,7 +42,7 @@ func (api *api) DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	isbn := vars["id"]
 
-	uuid, err := api.db.GetUUIDFromISBN(isbn)
+	uuid, err := api.db.GetBookUUIDFromISBN(isbn)
 	if err != nil {
 		http.Error(w, "Can't find the book", http.StatusInternalServerError)
 		fmt.Print(err.Error())
@@ -70,7 +70,7 @@ func (api *api) EditBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uuid, err := api.db.GetUUIDFromISBN(isbn)
+	uuid, err := api.db.GetBookUUIDFromISBN(isbn)
 	if err != nil {
 		http.Error(w, "Can't find book", http.StatusBadRequest)
 		fmt.Print(err.Error())
@@ -92,7 +92,7 @@ func (api *api) ToggleBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	isbn := vars["id"]
 
-	uuid, err := api.db.GetUUIDFromISBN(isbn)
+	uuid, err := api.db.GetBookUUIDFromISBN(isbn)
 	if err != nil {
 		http.Error(w, "Can't find book", http.StatusBadRequest)
 		fmt.Print(err.Error())
