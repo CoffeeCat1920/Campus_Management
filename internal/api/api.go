@@ -13,7 +13,7 @@ type Api interface {
 	EditBookHandler(w http.ResponseWriter, r *http.Request)
 	ToggleBookHandler(w http.ResponseWriter, r *http.Request)
 
-	AddUserHandler(w http.ResponseWriter, r *http.Request)
+	AddStudentHandler(w http.ResponseWriter, r *http.Request)
 
 	AddBorrowHandler(w http.ResponseWriter, r *http.Request)
 	BorrowFineHandler(w http.ResponseWriter, r *http.Request)

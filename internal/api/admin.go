@@ -48,7 +48,7 @@ func (api *api) AcceptRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.db.IncreaseRented(request.UserId)
+	err = api.db.IncreaseStudentRented(request.UserId)
 	if err != nil {
 		http.Error(w, "Can't increase number of rented books in database", http.StatusBadRequest)
 		fmt.Print(err)

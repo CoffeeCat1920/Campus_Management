@@ -6,6 +6,7 @@ type Book struct {
 	UUID      uuid.UUID `json:"uuid"`
 	ISBN      string    `json:"isbn"`
 	Name      string    `json:"name"`
+	Kind      int       `json:"kind"`
 	Available bool      `json:"available"`
 }
 

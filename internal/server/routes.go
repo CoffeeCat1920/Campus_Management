@@ -24,7 +24,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/toggle_books/{id}", api.ToggleBookHandler).Methods("PATCH")
 
 	// Users
-	r.HandleFunc("/users", api.AddUserHandler).Methods("POST")
+	r.HandleFunc("/student", api.AddStudentHandler).Methods("POST")
 
 	// Borrow
 	r.HandleFunc("/borrow", api.AddBorrowHandler).Methods("POST")

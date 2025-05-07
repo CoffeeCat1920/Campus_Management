@@ -28,7 +28,7 @@ func (api *api) AddBorrowHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := api.db.GetUserUUIDFromName(info.UserId)
+	userId, err := api.db.GetStudentUUIDFromName(info.UserId)
 	if err != nil {
 		http.Error(w, "Can't find user", http.StatusNotFound)
 		fmt.Printf("Can't find user cause, %v\n", err)
