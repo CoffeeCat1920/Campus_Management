@@ -19,8 +19,33 @@ type UserTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
-func verifyToken(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+type AuthService interface {
+	SetToken(w http.ResponseWriter, user *modals.User) error
+	AuthStudent(next http.HandlerFunc) http.HandlerFunc
+	AuthAdmin(next http.HandlerFunc) http.HandlerFunc
+	ClearToken(w http.ResponseWriter)
+}
+
+type authService struct{}
+
+func NewAuthService() AuthService {
+	return &authService{}
+}
+
+func (a *authService) SetToken(w http.ResponseWriter, user *modals.User) error {
+	return SetToken(w, user)
+}
+
+func (a *authService) AuthStudent(next http.HandlerFunc) http.HandlerFunc {
+	return AuthStudent(next)
+}
+
+func (a *authService) AuthAdmin(next http.HandlerFunc) http.HandlerFunc {
+	return AuthAdmin(next)
+}
+
+func verifyToken(tokenString string) (*UserTokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &UserTokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
@@ -28,15 +53,15 @@ func verifyToken(tokenString string) (*jwt.Token, error) {
 		return nil, err
 	}
 
-	if !token.Valid {
+	claims, ok := token.Claims.(*UserTokenClaims)
+	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	return token, nil
+	return claims, nil
 }
 
 func createToken(user *modals.User) (string, error) {
-
 	claims := UserTokenClaims{
 		UUID: user.UUID.String(),
 		Name: user.Name,
@@ -58,25 +83,8 @@ func createToken(user *modals.User) (string, error) {
 	return signedToken, nil
 }
 
-func auth(r *http.Request) error {
-	cookie, err := r.Cookie("token")
-	if err != nil {
-		return err
-	}
-
-	tokenString := cookie.Value
-	_, err = verifyToken(tokenString)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func SetToken(w http.ResponseWriter, user *modals.User) error {
-
 	token, err := createToken(user)
-
 	if err != nil {
 		return err
 	}
@@ -93,12 +101,73 @@ func SetToken(w http.ResponseWriter, user *modals.User) error {
 	return err
 }
 
-func Auth(next http.HandlerFunc) http.HandlerFunc {
+func authStudent(r *http.Request) error {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return err
+	}
+
+	tokenString := cookie.Value
+	claims, err := verifyToken(tokenString)
+	if err != nil {
+		return err
+	}
+
+	if claims.Type != 0 {
+		return fmt.Errorf("unauthorized: not a student")
+	}
+
+	return nil
+}
+
+func AuthStudent(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := auth(r); err != nil {
+		if err := authStudent(r); err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 		next(w, r)
 	}
+}
+
+func authAdmin(r *http.Request) error {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return err
+	}
+
+	tokenString := cookie.Value
+	claims, err := verifyToken(tokenString)
+	if err != nil {
+		return err
+	}
+
+	if claims.Type != 1 {
+		return fmt.Errorf("unauthorized: not an admin")
+	}
+
+	return nil
+}
+
+func AuthAdmin(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := authAdmin(r); err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next(w, r)
+	}
+}
+
+func (a *authService) ClearToken(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		Domain:   "",
+		HttpOnly: true,
+		Expires:  time.Unix(0, 0), // Set to a time in the past
+		MaxAge:   -1,
+		SameSite: http.SameSiteLaxMode,
+	})
 }

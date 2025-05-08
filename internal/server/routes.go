@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"what/internal/api"
+	"what/internal/auth"
 
 	"github.com/gorilla/mux"
 )
@@ -15,25 +16,27 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Use(s.corsMiddleware)
 
 	api := api.NewApi()
+	auth := auth.NewAuthService()
 
 	// Books
 	r.HandleFunc("/all_books", api.GetAllBooksHandler).Methods("GET")
-	r.HandleFunc("/books", api.AddBookHandler).Methods("POST")
-	r.HandleFunc("/books/{id}", api.DeleteBookHandler).Methods("DELETE")
-	r.HandleFunc("/books/{id}", api.EditBookHandler).Methods("PATCH")
-	r.HandleFunc("/toggle_books/{id}", api.ToggleBookHandler).Methods("PATCH")
+
+	r.HandleFunc("/books", auth.AuthAdmin(api.AddBookHandler)).Methods("POST")
+	r.HandleFunc("/books/{id}", auth.AuthAdmin(api.DeleteBookHandler)).Methods("DELETE")
+	r.HandleFunc("/books/{id}", auth.AuthAdmin(api.EditBookHandler)).Methods("PATCH")
+	r.HandleFunc("/toggle_books/{id}", auth.AuthAdmin(api.ToggleBookHandler)).Methods("PATCH")
 
 	// Users
-	r.HandleFunc("/student", api.AddStudentHandler).Methods("POST")
+	r.HandleFunc("/student", auth.AuthAdmin(api.AddStudentHandler)).Methods("POST")
 
 	// Borrow
-	r.HandleFunc("/borrow", api.AddBorrowHandler).Methods("POST")
-	r.HandleFunc("/borrow_fine", api.BorrowFineHandler).Methods("GET")
-	r.HandleFunc("/return_book/{id}", api.ReturnBookHandler).Methods("POST")
+	r.HandleFunc("/borrow", auth.AuthAdmin(api.AddBorrowHandler)).Methods("POST")
+	r.HandleFunc("/borrow_fine", auth.AuthAdmin(api.BorrowFineHandler)).Methods("GET")
+	r.HandleFunc("/return_book/{id}", auth.AuthAdmin(api.ReturnBookHandler)).Methods("POST")
 
 	// Request
-	r.HandleFunc("/request", api.RequestBorrowHandler).Methods("POST")
-	r.HandleFunc("/accept_request/{id}", api.AcceptRequestHandler).Methods("POST")
+	r.HandleFunc("/request", auth.AuthStudent(api.RequestBorrowHandler)).Methods("POST")
+	r.HandleFunc("/accept_request/{id}", auth.AuthStudent(api.AcceptRequestHandler)).Methods("POST")
 
 	r.HandleFunc("/health", s.healthHandler)
 
