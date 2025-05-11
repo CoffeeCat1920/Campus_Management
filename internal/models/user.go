@@ -10,7 +10,7 @@ import (
 
 const (
 	Student = iota
-	Admin
+	Librarian
 )
 
 type User struct {
@@ -32,8 +32,24 @@ func NewUser(name, password string) *User {
 		UUID:        uuid.New(),
 		Name:        name,
 		Password:    string(hashedPassword),
-		Type:        0,
+		Type:        Student,
 		RentedBooks: 0,
+	}
+}
+
+func NewLibrarian(name, password string) *User {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	if err != nil {
+		log.Fatal("\nCan't hash the password for user\n")
+		return nil
+	}
+
+	return &User{
+		UUID:        uuid.New(),
+		Name:        name,
+		Password:    string(hashedPassword),
+		Type:        Librarian,
+		RentedBooks: -1, // Sir, this is to make it invalid, cause go don't provide any way of inheritance and to split the type would create a lot of recursion
 	}
 }
 

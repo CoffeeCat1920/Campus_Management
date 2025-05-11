@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	modals "what/internal/models"
+
+	"github.com/gorilla/mux"
 )
 
 func (api *api) AddStudentHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +22,7 @@ func (api *api) AddStudentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	student := modals.NewUser(info.Name, info.Password)
-	err = api.db.AddStudent(student)
+	err = api.db.AddUser(student)
 	if err != nil {
 		http.Error(w, "Can't add student to db", http.StatusInternalServerError)
 		fmt.Print(err)
@@ -63,4 +65,40 @@ func (api *api) RequestBorrowHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 		return
 	}
+}
+
+func (api *api) DeleteStudentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["id"]
+
+	err := api.db.DeleteStudentsFromUUID(uuid)
+	if err != nil {
+		http.Error(w, "Can't find user", http.StatusNotFound)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (api *api) GetAllStudentsHandler(w http.ResponseWriter, r *http.Request) {
+	students, err := api.db.GetAllStudents()
+	if err != nil {
+		http.Error(w, "Can't get students", http.StatusInternalServerError)
+		fmt.Printf("Can't get students cause, %v", err)
+		return
+	}
+
+	fmt.Print(students)
+
+	jsonData, err := json.Marshal(students)
+	if err != nil {
+		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
+		fmt.Printf("Can't Marshall students cause, %v", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

@@ -9,14 +9,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type BookInfo struct {
-	ISBN      string `json:"isbn"`
-	Name      string `json:"name"`
-	Available bool   `json:"available"`
-}
-
 func (api *api) AddBookHandler(w http.ResponseWriter, r *http.Request) {
-	var info BookInfo
+	info := &struct {
+		ISBN      string `json:"isbn"`
+		Name      string `json:"name"`
+		Available bool   `json:"available"`
+	}{}
 	err := json.NewDecoder(r.Body).Decode(&info)
 
 	if err != nil {

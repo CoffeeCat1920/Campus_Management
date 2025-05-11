@@ -27,12 +27,17 @@ type Service interface {
 	ToggleBookAvailiablity(uuid string) error
 
 	// Users
-	AddStudent(user *modals.User) error
+	AddUser(user *modals.User) error
+
+	// Students
 	GetStudentUUIDFromName(name string) (string, error)
 	NumberOfRentedBooks(uuid string) (int, error)
 	IncreaseStudentRented(studentUUID string) error
 	DecreaseStudentRented(studentUUID string) error
 	GetStudentFromName(name string) (*modals.User, error)
+	GetStudentFromUUID(uuid string) (*modals.User, error)
+	DeleteStudentsFromUUID(uuid string) error
+	GetAllStudents() ([]modals.User, error)
 
 	// Borrow
 	AddBorrow(borrow *modals.Borrow) error

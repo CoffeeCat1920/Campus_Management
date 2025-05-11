@@ -147,7 +147,7 @@ func (s *service) GetBookUUIDFromISBN(isbn string) (string, error) {
 }
 
 func (s *service) GetAllBooks() ([]modals.Book, error) {
-	var recipes []modals.Book
+	recipes := []modals.Book{}
 
 	query := "SELECT * FROM books"
 
