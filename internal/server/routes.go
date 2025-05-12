@@ -22,6 +22,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/all_books", api.GetAllBooksHandler).Methods("GET")
 
 	r.HandleFunc("/books", auth.AuthLibrarian(api.AddBookHandler)).Methods("POST")
+	r.HandleFunc("/books/{id}", auth.AuthLibrarian(api.GetBookHandler)).Methods("GET")
 	r.HandleFunc("/books/{id}", auth.AuthLibrarian(api.DeleteBookHandler)).Methods("DELETE")
 	r.HandleFunc("/books/{id}", auth.AuthLibrarian(api.EditBookHandler)).Methods("PATCH")
 	r.HandleFunc("/toggle_books/{id}", auth.AuthLibrarian(api.ToggleBookHandler)).Methods("PATCH")
@@ -29,17 +30,23 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Users
 	r.HandleFunc("/login", api.LoginUserHandler).Methods("POST")
 
-	r.HandleFunc("/student", auth.AuthAdmin(api.AddStudentHandler)).Methods("POST")
-	r.HandleFunc("/student/{id}", auth.AuthAdmin(api.DeleteStudentHandler)).Methods("DELETE")
-	r.HandleFunc("/all_students", api.GetAllStudentsHandler).Methods("GET")
-
 	// Librarian
 	r.HandleFunc("/all_librarians", api.GetAllLibrariansHandler).Methods("GET")
+
 	r.HandleFunc("/librarian/data", api.LoginLibrarianDataHandler).Methods("GET")
+	r.HandleFunc("/librarian", api.AddLibrarianHandler).Methods("POST")
+	r.HandleFunc("/librarian/{id}", auth.AuthAdmin(api.EditLibrarianHandler)).Methods("PATCH")
+	r.HandleFunc("/librarian/{id}", auth.AuthAdmin(api.DeleteLibrarianHandler)).Methods("DELETE")
+	r.HandleFunc("/librarian/{id}", auth.AuthAdmin(api.GetLibrarianHandler)).Methods("GET")
 
 	// Students
-	r.HandleFunc("/add_user", auth.AuthLibrarian(api.DeleteStudentHandler)).Methods("POST")
+	r.HandleFunc("/all_students", api.GetAllStudentsHandler).Methods("GET")
+
 	r.HandleFunc("/student/data", api.LoginStudentDataHandler).Methods("GET")
+	r.HandleFunc("/student", auth.AuthAdmin(api.AddStudentHandler)).Methods("POST")
+	r.HandleFunc("/student/{id}", auth.AuthAdmin(api.EditStudentHandler)).Methods("PATCH")
+	r.HandleFunc("/student/{id}", auth.AuthAdmin(api.DeleteStudentHandler)).Methods("DELETE")
+	r.HandleFunc("/student/{id}", auth.AuthAdmin(api.GetStudentHandler)).Methods("GET")
 
 	// Borrow
 	r.HandleFunc("/borrow", auth.AuthLibrarian(api.AddBorrowHandler)).Methods("POST")
