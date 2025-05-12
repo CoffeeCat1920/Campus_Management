@@ -10,6 +10,14 @@ import (
 
 var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
+type contextKey string
+
+const (
+	ContextKeyUUID = contextKey("uuid")
+	ContextKeyName = contextKey("name")
+	ContextKeyType = contextKey("type")
+)
+
 type UserTokenClaims struct {
 	UUID string `json:"uuid"`
 	Name string `json:"name"`

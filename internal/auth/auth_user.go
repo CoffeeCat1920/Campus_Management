@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,8 +11,6 @@ import (
 )
 
 func createUserToken(user *modals.User) (string, error) {
-
-	fmt.Printf("\nUser to have it's token set : %v\n", user)
 
 	claims := UserTokenClaims{
 		UUID: user.UUID.String(),
@@ -24,14 +23,7 @@ func createUserToken(user *modals.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(secretKey))
-
-	if err != nil {
-		fmt.Print(err)
-		return "", err
-	}
-
-	return signedToken, nil
+	return token.SignedString([]byte(secretKey))
 }
 
 func (a *authService) SetUserToken(w http.ResponseWriter, user *modals.User) error {
@@ -44,19 +36,17 @@ func (a *authService) SetUserToken(w http.ResponseWriter, user *modals.User) err
 		Name:     "user_token",
 		Value:    token,
 		Path:     "/",
-		Domain:   "",
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	return err
+	return nil
 }
 
 func verifyUserToken(tokenString string) (*UserTokenClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &UserTokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -69,43 +59,42 @@ func verifyUserToken(tokenString string) (*UserTokenClaims, error) {
 	return claims, nil
 }
 
-func authStudent(r *http.Request) error {
-	cookie, err := r.Cookie("user_token")
-	if err != nil {
-		return err
-	}
+func injectClaimsIntoContext(r *http.Request, claims *UserTokenClaims) *http.Request {
+	ctx := context.WithValue(r.Context(), "uuid", claims.UUID)
+	ctx = context.WithValue(ctx, "name", claims.Name)
+	ctx = context.WithValue(ctx, "type", claims.Type)
+	return r.WithContext(ctx)
+}
 
-	tokenString := cookie.Value
-	claims, err := verifyUserToken(tokenString)
-	if err != nil {
-		return err
-	}
+func (a *authService) AuthStudent(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("user_token")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
-	if claims.Type != 0 {
-		return fmt.Errorf("unauthorized: not a student")
-	}
+		claims, err := verifyUserToken(cookie.Value)
+		if err != nil || claims.Type != 0 {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
-	return nil
+		r = injectClaimsIntoContext(r, claims)
+		next(w, r)
+	}
 }
 
 func (a *authService) StudentAuthData(r *http.Request) (*UserTokenClaims, error) {
+
 	cookie, err := r.Cookie("user_token")
 	if err != nil {
 		return nil, err
 	}
-
-	tokenString := cookie.Value
-	claims, err := verifyUserToken(tokenString)
-	if err != nil {
-		return nil, err
+	claims, err := verifyUserToken(cookie.Value)
+	if err != nil || claims.Type != 0 {
+		return nil, fmt.Errorf("unauthorized: not a student")
 	}
-
-	fmt.Printf("\n%v", claims.Type)
-
-	if claims.Type != 0 {
-		return nil, fmt.Errorf("unauthorized: not a student \n")
-	}
-
 	return claims, nil
 }
 
@@ -128,16 +117,6 @@ func (a *authService) LibrarianAuthData(r *http.Request) (*UserTokenClaims, erro
 	}
 
 	return claims, nil
-}
-
-func (a *authService) AuthStudent(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := authStudent(r); err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		next(w, r)
-	}
 }
 
 func authLibrarian(r *http.Request) error {
@@ -171,7 +150,7 @@ func (s *authService) AuthLibrarian(next http.HandlerFunc) http.HandlerFunc {
 
 func (a *authService) ClearUserToken(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
+		Name:     "user_token",
 		Value:    "",
 		Path:     "/",
 		Domain:   "",

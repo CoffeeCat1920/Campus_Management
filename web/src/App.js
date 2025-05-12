@@ -20,6 +20,8 @@ import Librarian_Edit_Books from './pages/Librarian_Pages/Edit_Books'
 import Librarian_Manage_Students from './pages/Librarian_Pages/Manage_Students';
 import Librarian_Edit_Student from './pages/Librarian_Pages/Edit_Student';
 
+import Explore_Books from './pages/Student_Pages/Explore_Books.jsx'
+
 import { AuthProvider } from './AuthContext.js';
 
 function App() {
@@ -48,6 +50,8 @@ function App() {
 
           <Route path="/librarian/manage/students" element={<Librarian_Manage_Students />} />
           <Route path="/librarian/edit/student/:id" element={<Librarian_Edit_Student />} />
+
+          <Route path="/student/books" element={<Explore_Books />} />
         </Routes>
       </Router>
     </AuthProvider>

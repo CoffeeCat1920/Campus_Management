@@ -90,20 +90,12 @@ func (api *api) GetStudentHandler(w http.ResponseWriter, r *http.Request) {
 
 func (api *api) RequestBorrowHandler(w http.ResponseWriter, r *http.Request) {
 	info := &struct {
-		StudentName string `json:"name"`
-		BookISBN    string `json:"isbn"`
-		Days        int    `json:"days"`
+		BookISBN string `json:"isbn"`
 	}{}
+
 	err := json.NewDecoder(r.Body).Decode(&info)
 	if err != nil {
 		http.Error(w, "Wrong Format", http.StatusBadRequest)
-		fmt.Print(err)
-		return
-	}
-
-	studentId, err := api.db.GetStudentUUIDFromName(info.StudentName)
-	if err != nil {
-		http.Error(w, "Can't get student of name "+info.StudentName, http.StatusBadRequest)
 		fmt.Print(err)
 		return
 	}
@@ -114,12 +106,12 @@ func (api *api) RequestBorrowHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 		return
 	}
+	studentId := r.Context().Value("uuid").(string)
 
-	request := modals.NewRequest(studentId, bookId, info.Days)
+	request := modals.NewRequest(studentId, bookId)
 
 	err = api.db.AddRequest(request)
 	if err != nil {
-		http.Error(w, "Can't add borrow request for "+info.StudentName, http.StatusBadRequest)
 		fmt.Print(err)
 		return
 	}

@@ -29,6 +29,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// Users
 	r.HandleFunc("/login", api.LoginUserHandler).Methods("POST")
+	r.HandleFunc("/logout", api.LogoutUserHandler).Methods("POST")
 
 	// Librarian
 	r.HandleFunc("/all_librarians", api.GetAllLibrariansHandler).Methods("GET")

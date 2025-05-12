@@ -129,6 +129,12 @@ func (api *api) AcceptRequestHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["id"]
 
+	info := &struct {
+		Days int
+	}{}
+
+	err := json.NewDecoder(r.Body).Decode(&info)
+
 	request, err := api.db.GetRequest(uuid)
 	if err != nil {
 		http.Error(w, "Can't get the request from database", http.StatusBadRequest)
@@ -156,7 +162,7 @@ func (api *api) AcceptRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	borrow := modals.NewBorrow(request.BookId, request.UserId, request.Days)
+	borrow := modals.NewBorrow(request.BookId, request.UserId, info.Days)
 
 	err = api.db.AddBorrow(borrow)
 	if err != nil {

@@ -158,4 +158,9 @@ func (api *api) LoginAdminHandler(w http.ResponseWriter, r *http.Request) {
 
 func (api *api) LogoutAdminHandler(w http.ResponseWriter, r *http.Request) {
 	api.auth.ClearAdminToken(w)
+
+}
+
+func (api *api) LogoutUserHandler(w http.ResponseWriter, r *http.Request) {
+	api.auth.ClearUserToken(w)
 }

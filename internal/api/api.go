@@ -18,6 +18,7 @@ type Api interface {
 	GetBookHandler(w http.ResponseWriter, r *http.Request)
 
 	// User
+	LogoutUserHandler(w http.ResponseWriter, r *http.Request)
 
 	// Student Handler
 	GetAllStudentsHandler(w http.ResponseWriter, r *http.Request)
