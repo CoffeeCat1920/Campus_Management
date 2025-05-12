@@ -27,14 +27,19 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/toggle_books/{id}", auth.AuthLibrarian(api.ToggleBookHandler)).Methods("PATCH")
 
 	// Users
-	r.HandleFunc("/login_user", api.LoginUserHandler).Methods("POST")
+	r.HandleFunc("/login", api.LoginUserHandler).Methods("POST")
 
 	r.HandleFunc("/student", auth.AuthAdmin(api.AddStudentHandler)).Methods("POST")
 	r.HandleFunc("/student/{id}", auth.AuthAdmin(api.DeleteStudentHandler)).Methods("DELETE")
 	r.HandleFunc("/all_students", api.GetAllStudentsHandler).Methods("GET")
 
+	// Librarian
+	r.HandleFunc("/all_librarians", api.GetAllLibrariansHandler).Methods("GET")
+	r.HandleFunc("/librarian/data", api.LoginLibrarianDataHandler).Methods("GET")
+
 	// Students
 	r.HandleFunc("/add_user", auth.AuthLibrarian(api.DeleteStudentHandler)).Methods("POST")
+	r.HandleFunc("/student/data", api.LoginStudentDataHandler).Methods("GET")
 
 	// Borrow
 	r.HandleFunc("/borrow", auth.AuthLibrarian(api.AddBorrowHandler)).Methods("POST")
