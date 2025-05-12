@@ -28,6 +28,64 @@ func (api *api) AddStudentHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (api *api) EditStudentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["id"]
+
+	info := &struct {
+		Name        string `json:"name"`
+		NewPassword string `json:"new_password"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&info)
+	if err != nil {
+		http.Error(w, "Wrong Format", http.StatusBadRequest)
+		fmt.Print(err)
+		return
+	}
+
+	_, err = api.db.GetStudentFromUUID(uuid)
+	if err != nil {
+		http.Error(w, "Can't Find User", http.StatusNotFound)
+		fmt.Print(err)
+		return
+	}
+
+	err = api.db.UpdateUserFromUUID(uuid, info.Name, info.NewPassword)
+	if err != nil {
+		http.Error(w, "Can't Edit user", http.StatusInternalServerError)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (api *api) GetStudentHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["id"]
+
+	student, err := api.db.GetStudentFromUUID(uuid)
+	if err != nil {
+		http.Error(w, "Can't Find User", http.StatusNotFound)
+		fmt.Print(err)
+		return
+	}
+
+	jsonData, err := json.Marshal(student)
+	if err != nil {
+		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
+		fmt.Printf("Can't Marshall students cause, %v", err)
+		return
+	}
+
+	fmt.Print(student)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
 
 func (api *api) RequestBorrowHandler(w http.ResponseWriter, r *http.Request) {

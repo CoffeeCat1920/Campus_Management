@@ -36,21 +36,41 @@ func (api *api) AddBookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (api *api) GetBookHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["id"]
+
+	book, err := api.db.GetBookFromUUID(uuid)
+	if err != nil {
+		http.Error(w, "Can't Find Book", http.StatusNotFound)
+		fmt.Print(err.Error())
+		return
+	}
+
+	jsonData, err := json.Marshal(book)
+	if err != nil {
+		http.Error(w, "Can't Marshal Book", http.StatusInternalServerError)
+		fmt.Print(err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
 func (api *api) DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	isbn := vars["id"]
 
-	uuid, err := api.db.GetBookUUIDFromISBN(isbn)
-	if err != nil {
-		http.Error(w, "Can't find the book", http.StatusInternalServerError)
-		fmt.Print(err.Error())
-	}
-
-	err = api.db.DeleteBook(uuid)
+	err := api.db.DeleteBook(isbn)
 	if err != nil {
 		http.Error(w, "Can't Delete the book", http.StatusInternalServerError)
 		fmt.Print(err.Error())
+		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (api *api) EditBookHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,16 +108,9 @@ func (api *api) EditBookHandler(w http.ResponseWriter, r *http.Request) {
 
 func (api *api) ToggleBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	isbn := vars["id"]
+	uuid := vars["id"]
 
-	uuid, err := api.db.GetBookUUIDFromISBN(isbn)
-	if err != nil {
-		http.Error(w, "Can't find book", http.StatusBadRequest)
-		fmt.Print(err.Error())
-		return
-	}
-
-	err = api.db.ToggleBookAvailiablity(uuid)
+	err := api.db.ToggleBookAvailiablity(uuid)
 	if err != nil {
 		http.Error(w, "Can't toggle book", http.StatusBadRequest)
 		fmt.Print(err.Error())

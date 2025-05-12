@@ -10,6 +10,9 @@ import (
 )
 
 func createUserToken(user *modals.User) (string, error) {
+
+	fmt.Printf("\nUser to have it's token set : %v\n", user)
+
 	claims := UserTokenClaims{
 		UUID: user.UUID.String(),
 		Name: user.Name,
@@ -83,6 +86,48 @@ func authStudent(r *http.Request) error {
 	}
 
 	return nil
+}
+
+func (a *authService) StudentAuthData(r *http.Request) (*UserTokenClaims, error) {
+	cookie, err := r.Cookie("user_token")
+	if err != nil {
+		return nil, err
+	}
+
+	tokenString := cookie.Value
+	claims, err := verifyUserToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("\n%v", claims.Type)
+
+	if claims.Type != 0 {
+		return nil, fmt.Errorf("unauthorized: not a student \n")
+	}
+
+	return claims, nil
+}
+
+func (a *authService) LibrarianAuthData(r *http.Request) (*UserTokenClaims, error) {
+	cookie, err := r.Cookie("user_token")
+	if err != nil {
+		return nil, err
+	}
+
+	tokenString := cookie.Value
+	claims, err := verifyUserToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("\n%v", claims.Type)
+
+	if claims.Type != 1 {
+		return nil, fmt.Errorf("unauthorized: not a librarian \n")
+	}
+
+	return claims, nil
 }
 
 func (a *authService) AuthStudent(next http.HandlerFunc) http.HandlerFunc {

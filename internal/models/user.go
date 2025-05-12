@@ -17,8 +17,8 @@ type User struct {
 	UUID        uuid.UUID `json:"uuid"`
 	Name        string    `json:"name"`
 	Password    string    `json:"password"`
-	Type        int       `json:"type"`
 	RentedBooks int       `json:"rentedbooks"`
+	Type        int       `json:"type"`
 }
 
 func NewUser(name, password string) *User {
@@ -66,5 +66,5 @@ func (user *User) GetType() (string, error) {
 
 func (user *User) CheckPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	return (err != nil)
+	return (err == nil)
 }

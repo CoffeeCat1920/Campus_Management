@@ -25,6 +25,8 @@ type AuthService interface {
 	SetUserToken(w http.ResponseWriter, user *modals.User) error
 	AuthStudent(next http.HandlerFunc) http.HandlerFunc
 	AuthLibrarian(next http.HandlerFunc) http.HandlerFunc
+	StudentAuthData(r *http.Request) (*UserTokenClaims, error)
+	LibrarianAuthData(r *http.Request) (*UserTokenClaims, error)
 	ClearUserToken(w http.ResponseWriter)
 
 	SetAdminToken(w http.ResponseWriter) error

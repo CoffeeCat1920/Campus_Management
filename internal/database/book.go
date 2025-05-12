@@ -146,10 +146,29 @@ func (s *service) GetBookUUIDFromISBN(isbn string) (string, error) {
 	return uuid, err
 }
 
+func (s *service) GetBookFromUUID(uuid string) (*modals.Book, error) {
+	var book modals.Book
+
+	q := `SELECT * FROM books 
+	WHERE uuid = $1`
+
+	row := s.db.QueryRow(q, uuid)
+	err := row.Scan(&book.UUID, &book.ISBN, &book.Name, &book.Available)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrItemNotFound
+		} else {
+			return nil, err
+		}
+	}
+
+	return &book, err
+}
+
 func (s *service) GetAllBooks() ([]modals.Book, error) {
 	recipes := []modals.Book{}
 
-	query := "SELECT * FROM books"
+	query := "SELECT * FROM books ORDER BY name ASC"
 
 	rows, err := s.db.Query(query)
 	if err != nil {

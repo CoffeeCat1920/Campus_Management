@@ -18,6 +18,7 @@ import (
 type Service interface {
 
 	// Books
+	GetBookFromUUID(uuid string) (*modals.Book, error)
 	AddBook(book *modals.Book) error
 	UpdateBookName(uuid string, name string) error
 	GetBookUUIDFromISBN(isbn string) (string, error)
@@ -28,6 +29,7 @@ type Service interface {
 
 	// Users
 	AddUser(user *modals.User) error
+	GetUserFromName(name string) (*modals.User, error)
 
 	// Students
 	GetStudentUUIDFromName(name string) (string, error)
@@ -38,6 +40,12 @@ type Service interface {
 	GetStudentFromUUID(uuid string) (*modals.User, error)
 	DeleteStudentsFromUUID(uuid string) error
 	GetAllStudents() ([]modals.User, error)
+	UpdateUserFromUUID(uuid string, name string, password string) error
+
+	// Librarian
+	GetLibrarianFromUUID(uuid string) (*modals.User, error)
+	DeleteLibrarianFromUUID(uuid string) error
+	GetAllLibrarians() ([]modals.User, error)
 
 	// Borrow
 	AddBorrow(borrow *modals.Borrow) error

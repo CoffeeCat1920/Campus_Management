@@ -46,9 +46,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/accept_request/{id}", auth.AuthStudent(api.AcceptRequestHandler)).Methods("POST")
 
 	// Admin
-	r.HandleFunc("/admin/login", api.LoginAdminHandle).Methods("POST")
+	r.HandleFunc("/admin/login", api.LoginAdminHandler).Methods("POST")
 	r.HandleFunc("/admin/logout", api.LogoutAdminHandler).Methods("POST")
-	r.HandleFunc("/admin/data", api.LoginAdminDataHandle).Methods("GET")
+	r.HandleFunc("/admin/data", api.LoginAdminDataHandler).Methods("GET")
 
 	r.HandleFunc("/health", s.healthHandler)
 

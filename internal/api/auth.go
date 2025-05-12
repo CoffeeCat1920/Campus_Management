@@ -20,7 +20,7 @@ func (api *api) LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := api.db.GetStudentFromName(info.Name)
+	user, err := api.db.GetUserFromName(info.Name)
 	if err != nil {
 		http.Error(w, "Invalid User Request", http.StatusBadRequest)
 		fmt.Print(err)
@@ -43,7 +43,71 @@ func (api *api) LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (api *api) LoginAdminDataHandle(w http.ResponseWriter, r *http.Request) {
+func (api *api) LoginStudentDataHandler(w http.ResponseWriter, r *http.Request) {
+	claims, err := api.auth.StudentAuthData(r)
+
+	if err != nil {
+		http.Error(w, "Not LoggedIn", http.StatusUnauthorized)
+		fmt.Print(err)
+		return
+	}
+
+	data := &struct {
+		UUID string
+		Name string
+		Type int
+	}{
+		UUID: claims.UUID,
+		Name: claims.Name,
+		Type: claims.Type,
+	}
+
+	jsonData, err := json.Marshal(data)
+
+	if err != nil {
+		http.Error(w, "Can't marshall data", http.StatusInternalServerError)
+		fmt.Print(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (api *api) LoginLibrarianDataHandler(w http.ResponseWriter, r *http.Request) {
+	claims, err := api.auth.LibrarianAuthData(r)
+
+	if err != nil {
+		http.Error(w, "Not LoggedIn", http.StatusUnauthorized)
+		fmt.Print(err)
+		return
+	}
+
+	data := &struct {
+		UUID string
+		Name string
+		Type int
+	}{
+		UUID: claims.UUID,
+		Name: claims.Name,
+		Type: claims.Type,
+	}
+
+	jsonData, err := json.Marshal(data)
+
+	if err != nil {
+		http.Error(w, "Can't marshall data", http.StatusInternalServerError)
+		fmt.Print(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (api *api) LoginAdminDataHandler(w http.ResponseWriter, r *http.Request) {
 	err := api.auth.AdminAuthData(r)
 
 	if err != nil {
@@ -55,7 +119,7 @@ func (api *api) LoginAdminDataHandle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (api *api) LoginAdminHandle(w http.ResponseWriter, r *http.Request) {
+func (api *api) LoginAdminHandler(w http.ResponseWriter, r *http.Request) {
 	info := &struct {
 		Password string `json:"password"`
 	}{}

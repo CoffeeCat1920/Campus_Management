@@ -1,28 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from "../AuthContext";
 
 export default function Navbar() {
 
-  const [isAdminLogged, setAdminLogged] = useState(false)
-  const [isUserLogged, setUserLogged] = useState(false)
-
-  useEffect(() => {
-    fetch('/admin/data', {
-      method: 'GET',
-      credentials: 'include'
-    }).then((res) => {
-      if (res.status == 200) {
-        setAdminLogged(true);
-      } else if (res.status == 401) {
-        setAdminLogged(false);
-      } else {
-        throw new Error(`Unexpected status: ${res.status}`);
-      }
-    }).catch((err) => {
-      console.error('Error checking login status:', err);
-      setAdminLogged(false);
-    })
-  }, []);
+  const { isAdminLogged, isStudentLogged, isLibrarianLogged } = useAuth()
 
   return (
     <nav>
@@ -31,9 +12,16 @@ export default function Navbar() {
       ) : (
         <Link to="/">Home</Link>
       )}
-      {isAdminLogged && <Link to="/manage/students">Manage Students</Link>}
-      {!isAdminLogged && <Link to="/login">Login</Link>}
+
       {!isAdminLogged && <Link to="/admin/login">Admin Login</Link>}
+
+      {isAdminLogged && <Link to="/manage/students">Manage Students</Link>}
+      {isAdminLogged && <Link to="/manage/librarians">Manage Librarian</Link>}
+
+      {!(isStudentLogged || isLibrarianLogged) && <Link to="/login">Login</Link>}
+
+      {isLibrarianLogged && <Link to="/librarian/manage/students">Manage Students</Link>}
+      {isLibrarianLogged && <Link to="/librarian/manage/books">Manage Books</Link>}
     </nav >
   );
 }

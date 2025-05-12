@@ -1,54 +1,56 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"
 
-export default function Manage_Students() {
+export default function Manage_Librarians() {
+  const navigate = useNavigate();
 
-  const [students, setStudents] = useState([])
+  const [librarians, setLibrarian] = useState([])
   const [name, setName] = useState([])
   const [password, setPassword] = useState([])
 
-  const fetchStudents = async () => {
-    const res = await fetch(`/all_students`);
+  const fetchLibrarians = async () => {
+    const res = await fetch(`/all_librarians`);
     const data = await res.json();
-    setStudents(data);
+    setLibrarian(data);
   };
 
   const handleAdd = async () => {
-    await fetch(`/student`, {
+    await fetch(`/librarian`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, password }),
     });
     setName('');
     setPassword('');
-    fetchStudents();
+    fetchLibrarians();
   };
 
-  const deleteStudent = async (id) => {
+  const deleteLibrarian = async (id) => {
     try {
-      const res = await fetch(`/student/${id}`, {
+      const res = await fetch(`/librarian/${id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        fetchStudents();
+        fetchLibrarians()
       } else {
         const text = await res.text();
-        console.log(`Failed to delete student: ${text}`);
+        console.log(`Failed to delete librarian : ${text}`);
       }
     } catch (error) {
-      console.error("Error deleting student:", error);
-      alert("An error occurred while deleting the student.");
+      console.error("Error deleting librarian:", error);
+      alert("An error occurred while deleting the librarian.");
     }
   };
 
   useEffect(() => {
-    fetchStudents();
-    console.log(students)
+    fetchLibrarians();
+    console.log(librarians)
   }, [])
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h2>Students</h2>
+      <h2>Librarian</h2>
 
       <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
         <input
@@ -70,9 +72,9 @@ export default function Manage_Students() {
       </div>
 
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {students.map((student) => (
+        {librarians.map((librarian) => (
           <li
-            key={student.uuid}
+            key={librarian.uuid}
             style={{
               display: "flex",
               alignItems: "center",
@@ -82,16 +84,19 @@ export default function Manage_Students() {
             }}
           >
             <div style={{ flex: 1 }}>
-              <strong>{student.name}</strong> — Rented Books: {student.rentedbooks}
+              <strong>{librarian.name}</strong>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-              <button style={{ padding: "4px 8px", cursor: "pointer" }}>Edit</button>
-              <button style={{ padding: "4px 8px", cursor: "pointer" }} onClick={() => deleteStudent(student.uuid)}>Delete</button>
+              <button style={{ padding: "4px 8px", cursor: "pointer" }} onClick={
+                () => navigate(`/edit/librarian/${librarian.uuid}`)
+              } >Edit</button>
+              <button style={{ padding: "4px 8px", cursor: "pointer" }} onClick={() => deleteLibrarian(librarian.uuid)}>Delete</button>
             </div>
           </li>
         ))}
       </ul>
     </div>
   );
+
 
 }

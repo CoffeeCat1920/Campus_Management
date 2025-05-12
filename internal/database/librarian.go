@@ -6,7 +6,7 @@ import (
 )
 
 func (s *service) GetAllLibrarians() ([]modals.User, error) {
-	var users []modals.User
+	users := []modals.User{}
 
 	q := `SELECT uuid, name, password, type, rentedbooks FROM users WHERE type = 1;`
 
@@ -48,11 +48,11 @@ func (s *service) GetLibrarianUUIDFromName(name string) (string, error) {
 	return librarianUUID, nil
 }
 
-func (s *service) GetLibrarianFromUUID(uuid string) (*modals.User, error) {
+func (s *service) GetLibrarianFromName(name string) (*modals.User, error) {
 	var librarian modals.User
 
-	query := "SELECT uuid, name, password, type, rentedbooks FROM users WHERE uuid = $1 AND type = 1"
-	err := s.db.QueryRow(query, uuid).Scan(&librarian.UUID, &librarian.Name, &librarian.Password, &librarian.Type, &librarian.RentedBooks)
+	query := "SELECT uuid, name, password, type, rentedbooks FROM users WHERE name = $1 AND type = 1"
+	err := s.db.QueryRow(query, name).Scan(&librarian.UUID, &librarian.Name, &librarian.Password, &librarian.Type, &librarian.RentedBooks)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, ErrItemNotFound
@@ -64,11 +64,31 @@ func (s *service) GetLibrarianFromUUID(uuid string) (*modals.User, error) {
 	return &librarian, nil
 }
 
-func (s *service) GetLibrarianFromName(name string) (*modals.User, error) {
+func (s *service) DeleteLibrarianFromUUID(uuid string) error {
+	q := "DELETE FROM users WHERE uuid = $1 AND type = 1"
+
+	res, err := s.db.Exec(q, uuid)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected <= 0 {
+		return ErrItemNotFound
+	}
+
+	return nil
+}
+
+func (s *service) GetLibrarianFromUUID(uuid string) (*modals.User, error) {
 	var librarian modals.User
 
-	query := "SELECT uuid, name, password, type, rentedbooks FROM users WHERE name = $1 AND type = 1"
-	err := s.db.QueryRow(query, name).Scan(&librarian.UUID, &librarian.Name, &librarian.Password, &librarian.Type, &librarian.RentedBooks)
+	query := "SELECT * FROM users WHERE uuid = $1 AND type = 1"
+	err := s.db.QueryRow(query, uuid).Scan(&librarian.UUID, &librarian.Name, &librarian.Password, &librarian.RentedBooks, &librarian.Type)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, ErrItemNotFound
