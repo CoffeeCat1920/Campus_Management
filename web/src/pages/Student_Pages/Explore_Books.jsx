@@ -14,8 +14,19 @@ export default function Explore_Books() {
     fetchBooks();
   }, []);
 
-  const handleRequest = async () => {
-
+  const handleRequest = async (isbn) => {
+    try {
+      const res = await fetch(`/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isbn }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to make a request");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -40,6 +51,7 @@ export default function Explore_Books() {
                 <p>ISBN: {book.isbn}</p>
                 <p>Available: {book.available ? 'Yes' : 'No'}</p>
               </div>
+              <button style={{ padding: "4px 8px", cursor: "pointer" }} onClick={() => handleRequest(book.isbn)}>Request</button>
             </div>
           </li>
         ))}

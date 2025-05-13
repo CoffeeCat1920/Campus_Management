@@ -187,3 +187,8 @@ func (s *service) GetAllBooks() ([]modals.Book, error) {
 
 	return recipes, nil
 }
+
+func (s *service) GetAllBooksExcept() ([]modals.Book, error) {
+	recipes := []modals.Book{}
+	return recipes, nil
+}
