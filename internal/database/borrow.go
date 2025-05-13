@@ -75,3 +75,29 @@ func (s *service) BorrowFine(uuid string, rate int) (int, error) {
 		return 0, nil
 	}
 }
+
+func (s *service) GetBorrowsByUser(uuid string) ([]modals.Borrow, error) {
+	borrows := []modals.Borrow{}
+
+	q := `SELECT * FROM borrows WHERE userid = $1`
+
+	rows, err := s.db.Query(q, uuid)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return borrows, nil
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var borrow modals.Borrow
+		err := rows.Scan(&borrow.UUID, &borrow.BookId, &borrow.UserId, &borrow.BorrowDate, &borrow.ReturnDate)
+		if err != nil {
+			return nil, err
+		}
+		borrows = append(borrows, borrow)
+	}
+
+	return borrows, nil
+}

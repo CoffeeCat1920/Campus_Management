@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	modals "what/internal/models"
+
+	"github.com/gorilla/mux"
 )
 
 func (api *api) AddBorrowHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +70,31 @@ func (api *api) BorrowFineHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonData, err := json.Marshal(fine)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (api *api) GetBorrowByUserHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	studentId := vars["id"]
+
+	borrows, err := api.db.GetBorrowsByUser(studentId)
+	if err != nil {
+		http.Error(w, "Can't get books", http.StatusInternalServerError)
+		fmt.Printf("Can't get books cause, %v", err)
+		return
+	}
+
+	jsonData, err := json.Marshal(borrows)
+	if err != nil {
+		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
+		fmt.Printf("Can't Marshall books cause, %v", err)
+		return
+	}
+
+	fmt.Print(borrows)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

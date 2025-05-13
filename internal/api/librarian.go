@@ -123,8 +123,6 @@ func (api *api) DeleteLibrarianHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (api *api) LoginLibrarianHandler(w http.ResponseWriter, r *http.Request) {}
-
 func (api *api) AcceptRequestHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["id"]
@@ -138,27 +136,28 @@ func (api *api) AcceptRequestHandler(w http.ResponseWriter, r *http.Request) {
 	request, err := api.db.GetRequest(uuid)
 	if err != nil {
 		http.Error(w, "Can't get the request from database", http.StatusBadRequest)
-		fmt.Print(err)
+		fmt.Printf("Can't get the request from database cause, %v", err)
 		return
 	}
 
 	err = api.db.DeleteRequest(uuid)
 	if err != nil {
 		http.Error(w, "Can't delete the request from database", http.StatusBadRequest)
+		fmt.Printf("Can't delete the request from database, %v", err)
 		fmt.Print(err)
 		return
 	}
 
 	rentedBooks, err := api.db.NumberOfRentedBooks(request.UserId)
 	if err != nil {
-		http.Error(w, "Can't get number of rented books from database", http.StatusBadRequest)
-		fmt.Print(err)
+		http.Error(w, "\nCan't get number of rented books from database", http.StatusBadRequest)
+		fmt.Printf("\nCan't get number of rented books from database, %v", err)
 		return
 	}
 
 	if rentedBooks >= 3 {
-		http.Error(w, ErrMaxRentLimit.Error(), http.StatusBadRequest)
-		fmt.Print(err)
+		http.Error(w, "number of rented book is larger", http.StatusBadRequest)
+		fmt.Print("number of rented book is larger it is")
 		return
 	}
 
@@ -166,15 +165,17 @@ func (api *api) AcceptRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = api.db.AddBorrow(borrow)
 	if err != nil {
-		http.Error(w, "Can't add the borrow to database", http.StatusBadRequest)
+		http.Error(w, "\nCan't add the borrow to database", http.StatusBadRequest)
 		fmt.Print(err)
+		fmt.Printf("\nCan't add the borrow to database %v", err)
 		return
 	}
 
 	err = api.db.IncreaseStudentRented(request.UserId)
 	if err != nil {
-		http.Error(w, "Can't increase number of rented books in database", http.StatusBadRequest)
+		http.Error(w, "\nCan't increase number of rented books in database", http.StatusBadRequest)
 		fmt.Print(err)
+		fmt.Printf("\nCan't increase number of rented books in database, %v", err)
 		return
 	}
 

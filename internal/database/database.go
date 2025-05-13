@@ -26,6 +26,8 @@ type Service interface {
 	SearchBooks(name string) ([]modals.Book, error)
 	GetAllBooks() ([]modals.Book, error)
 	ToggleBookAvailiablity(uuid string) error
+	GetAllBooksExcept(userid string) ([]modals.Book, error)
+	GetAllAvailableBooks() ([]modals.Book, error)
 
 	// Users
 	AddUser(user *modals.User) error
@@ -51,11 +53,13 @@ type Service interface {
 	AddBorrow(borrow *modals.Borrow) error
 	BorrowFine(uuid string, rate int) (int, error)
 	DeleteBorrow(uuid string) error
+	GetBorrowsByUser(uuid string) ([]modals.Borrow, error)
 
 	// Request
 	AddRequest(request *modals.Request) error
 	DeleteRequest(uuid string) error
 	GetRequest(uuid string) (*modals.Request, error)
+	GetRequestsByUse(uuid string) ([]modals.RequestWithBookName, error)
 
 	Health() map[string]string
 	Close() error

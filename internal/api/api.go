@@ -16,9 +16,12 @@ type Api interface {
 	EditBookHandler(w http.ResponseWriter, r *http.Request)
 	ToggleBookHandler(w http.ResponseWriter, r *http.Request)
 	GetBookHandler(w http.ResponseWriter, r *http.Request)
+	GetAllAvailableBooksHandler(w http.ResponseWriter, r *http.Request)
 
 	// User
 	LogoutUserHandler(w http.ResponseWriter, r *http.Request)
+	BooksExcept(w http.ResponseWriter, r *http.Request)
+	NumberOfBorrowHandler(w http.ResponseWriter, r *http.Request)
 
 	// Student Handler
 	GetAllStudentsHandler(w http.ResponseWriter, r *http.Request)
@@ -32,7 +35,6 @@ type Api interface {
 	GetAllLibrariansHandler(w http.ResponseWriter, r *http.Request)
 	AddLibrarianHandler(w http.ResponseWriter, r *http.Request)
 	GetLibrarianHandler(w http.ResponseWriter, r *http.Request)
-	LoginLibrarianHandler(w http.ResponseWriter, r *http.Request)
 	EditLibrarianHandler(w http.ResponseWriter, r *http.Request)
 	DeleteLibrarianHandler(w http.ResponseWriter, r *http.Request)
 	LoginLibrarianDataHandler(w http.ResponseWriter, r *http.Request)
@@ -41,10 +43,14 @@ type Api interface {
 	AddBorrowHandler(w http.ResponseWriter, r *http.Request)
 	BorrowFineHandler(w http.ResponseWriter, r *http.Request)
 	ReturnBookHandler(w http.ResponseWriter, r *http.Request)
+	GetBorrowByUserHandler(w http.ResponseWriter, r *http.Request)
 
+	// Requests
 	RequestBorrowHandler(w http.ResponseWriter, r *http.Request)
 	AcceptRequestHandler(w http.ResponseWriter, r *http.Request)
+	DeclineRequestHandler(w http.ResponseWriter, r *http.Request)
 	DeleteStudentHandler(w http.ResponseWriter, r *http.Request)
+	GetRequestByUserHandler(w http.ResponseWriter, r *http.Request)
 
 	// Admin Handler
 	LoginAdminHandler(w http.ResponseWriter, r *http.Request)

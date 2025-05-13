@@ -103,7 +103,7 @@ func (s *service) DeleteStudentsFromUUID(uuid string) error {
 func (s *service) NumberOfRentedBooks(studentUUID string) (int, error) {
 	var rentedBooks int
 
-	query := "SELECT rentedbooks FROM users WHERE name = $1 AND type = 0"
+	query := "SELECT rentedbooks FROM users WHERE uuid = $1 AND type = 0"
 	err := s.db.QueryRow(query, studentUUID).Scan(&rentedBooks)
 	if err != nil {
 		if err == sql.ErrNoRows {

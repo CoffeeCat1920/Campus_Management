@@ -70,7 +70,9 @@ export default function Manage_Students() {
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
               <button style={{ padding: "4px 8px", cursor: "pointer" }} onClick={
-                () => navigate(`/edit/student/${student.uuid}`)
+                () => navigate(`/librarian/edit/student/${student.uuid}`, {
+                  state: { studentName: student.name }
+                })
               } >Edit</button>
             </div>
           </li>

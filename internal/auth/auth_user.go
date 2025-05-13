@@ -66,6 +66,22 @@ func injectClaimsIntoContext(r *http.Request, claims *UserTokenClaims) *http.Req
 	return r.WithContext(ctx)
 }
 
+func (a *authService) AuthUser(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("user_token")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		claims, err := verifyUserToken(cookie.Value)
+
+		r = injectClaimsIntoContext(r, claims)
+		next(w, r)
+	}
+
+}
+
 func (a *authService) AuthStudent(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("user_token")
@@ -83,6 +99,7 @@ func (a *authService) AuthStudent(next http.HandlerFunc) http.HandlerFunc {
 		r = injectClaimsIntoContext(r, claims)
 		next(w, r)
 	}
+
 }
 
 func (a *authService) StudentAuthData(r *http.Request) (*UserTokenClaims, error) {

@@ -31,6 +31,7 @@ type AdminTokenClaims struct {
 
 type AuthService interface {
 	SetUserToken(w http.ResponseWriter, user *modals.User) error
+	AuthUser(next http.HandlerFunc) http.HandlerFunc
 	AuthStudent(next http.HandlerFunc) http.HandlerFunc
 	AuthLibrarian(next http.HandlerFunc) http.HandlerFunc
 	StudentAuthData(r *http.Request) (*UserTokenClaims, error)

@@ -14,6 +14,14 @@ type Borrow struct {
 	ReturnDate string    `json:"return_date"`
 }
 
+type BorrowWithBookName struct {
+	UUID       uuid.UUID `json:"uuid"`
+	BookId     string    `json:"bookid"`
+	UserId     string    `json:"userid"`
+	BorrowDate string    `json:"borrow_date"`
+	ReturnDate string    `json:"return_date"`
+}
+
 func NewBorrow(bookid string, userid string, days int) *Borrow {
 	now := time.Now()
 	returnDate := now.AddDate(0, 0, days)

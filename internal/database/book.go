@@ -188,7 +188,52 @@ func (s *service) GetAllBooks() ([]modals.Book, error) {
 	return recipes, nil
 }
 
-func (s *service) GetAllBooksExcept() ([]modals.Book, error) {
+func (s *service) GetAllAvailableBooks() ([]modals.Book, error) {
 	recipes := []modals.Book{}
+
+	query := "SELECT * FROM books WHERE available = true ORDER BY name ASC"
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var recipe modals.Book
+		err := rows.Scan(&recipe.UUID, &recipe.ISBN, &recipe.Name, &recipe.Available)
+		if err != nil {
+			return nil, err
+		}
+		recipes = append(recipes, recipe)
+	}
+
+	return recipes, nil
+}
+
+func (s *service) GetAllBooksExcept(userid string) ([]modals.Book, error) {
+	recipes := []modals.Book{}
+
+	query := `
+		SELECT *
+		FROM books
+		WHERE available = true AND uuid NOT IN (SELECT bookid FROM requests WHERE userid = $1);
+	`
+
+	rows, err := s.db.Query(query, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var recipe modals.Book
+		err := rows.Scan(&recipe.UUID, &recipe.ISBN, &recipe.Name, &recipe.Available)
+		if err != nil {
+			return nil, err
+		}
+		recipes = append(recipes, recipe)
+	}
+
 	return recipes, nil
 }

@@ -106,8 +106,8 @@ func (api *api) RequestBorrowHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Print(err)
 		return
 	}
-	studentId := r.Context().Value("uuid").(string)
 
+	studentId := r.Context().Value("uuid").(string)
 	request := modals.NewRequest(studentId, bookId)
 
 	err = api.db.AddRequest(request)
@@ -145,6 +145,54 @@ func (api *api) GetAllStudentsHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
 		fmt.Printf("Can't Marshall students cause, %v", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (api *api) BooksExcept(w http.ResponseWriter, r *http.Request) {
+	studentId := r.Context().Value("uuid").(string)
+
+	books, err := api.db.GetAllBooksExcept(studentId)
+	if err != nil {
+		http.Error(w, "Can't get books", http.StatusInternalServerError)
+		fmt.Printf("Can't get books cause, %v", err)
+		return
+	}
+
+	jsonData, err := json.Marshal(books)
+	if err != nil {
+		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
+		fmt.Printf("Can't Marshall books cause, %v", err)
+		return
+	}
+
+	fmt.Print(books)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (api *api) NumberOfBorrowHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	studentId := vars["id"]
+
+	count, err := api.db.NumberOfRentedBooks(studentId)
+	fmt.Printf("\nCount: %v\n", count)
+	if err != nil {
+		http.Error(w, "Can't get number of borrowed books", http.StatusInternalServerError)
+		fmt.Printf("Can't get books cause, %v", err)
+		return
+	}
+
+	jsonData, err := json.Marshal(count)
+	if err != nil {
+		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
+		fmt.Printf("Can't Marshall nob cause, %v", err)
 		return
 	}
 

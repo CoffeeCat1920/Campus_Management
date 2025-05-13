@@ -5,7 +5,7 @@ export default function Explore_Books() {
   const [books, setBooks] = useState([]);
 
   const fetchBooks = async () => {
-    const res = await fetch(`/all_books`);
+    const res = await fetch(`/student/all_books`);
     const data = await res.json();
     setBooks(data);
   };
@@ -24,10 +24,12 @@ export default function Explore_Books() {
       if (!res.ok) {
         throw new Error("Failed to make a request");
       }
+      fetchBooks();
     } catch (err) {
       console.error(err);
     }
   }
+
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>

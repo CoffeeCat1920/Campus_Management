@@ -141,3 +141,25 @@ func (api *api) GetAllBooksHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
 }
+
+func (api *api) GetAllAvailableBooksHandler(w http.ResponseWriter, r *http.Request) {
+	books, err := api.db.GetAllAvailableBooks()
+	if err != nil {
+		http.Error(w, "Can't get books", http.StatusInternalServerError)
+		fmt.Printf("Can't get books cause, %v", err)
+		return
+	}
+
+	jsonData, err := json.Marshal(books)
+	if err != nil {
+		http.Error(w, "Can't Marshall json", http.StatusInternalServerError)
+		fmt.Printf("Can't Marshall books cause, %v", err)
+		return
+	}
+
+	fmt.Print(books)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
