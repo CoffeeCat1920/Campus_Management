@@ -25,6 +25,9 @@ func (s *service) GetRequest(uuid string) (*modals.Request, error) {
 	row := s.db.QueryRow(q, uuid)
 	err := row.Scan(&request.UUID, &request.UserId, &request.BookId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrItemNotFound
+		}
 		return nil, err
 	}
 

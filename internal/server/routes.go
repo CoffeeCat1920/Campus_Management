@@ -41,6 +41,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/librarian/{id}", auth.AuthAdmin(api.DeleteLibrarianHandler)).Methods("DELETE")
 	r.HandleFunc("/librarian/{id}", auth.AuthAdmin(api.GetLibrarianHandler)).Methods("GET")
 
+	r.HandleFunc("/librarian/clear_fine/{id}", auth.AuthLibrarian(api.ClearFineHandler)).Methods("PATCH")
+	r.HandleFunc("/librarian/fine/{id}", auth.AuthLibrarian(api.GetFineByUser)).Methods("PATCH")
+
 	// Students
 	r.HandleFunc("/all_students", api.GetAllStudentsHandler).Methods("GET")
 
@@ -51,12 +54,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/student/{id}", auth.AuthAdmin(api.GetStudentHandler)).Methods("GET")
 
 	r.HandleFunc("/student/nob/{id}", auth.AuthUser(api.NumberOfBorrowHandler)).Methods("GET")
+	r.HandleFunc("/student/fine/{id}", auth.AuthUser(api.GetFineByUser)).Methods("PATCH")
+	r.HandleFunc("/student/borrow/{id}", api.GetBorrowByUserHandler).Methods("GET")
+	r.HandleFunc("/requests/{id}", auth.AuthUser(api.GetRequestByUserHandler)).Methods("GET")
 
 	// Borrow
 	r.HandleFunc("/borrow/{id}", api.GetBorrowByUserHandler).Methods("GET")
 	r.HandleFunc("/borrow", auth.AuthLibrarian(api.AddBorrowHandler)).Methods("POST")
 	r.HandleFunc("/borrow_fine", auth.AuthLibrarian(api.BorrowFineHandler)).Methods("GET")
-	r.HandleFunc("/return_book/{id}", api.ReturnBookHandler).Methods("POST")
+	r.HandleFunc("/return_book/{id}", auth.AuthLibrarian(api.ReturnBookHandler)).Methods("POST")
 
 	// Request
 	r.HandleFunc("/request", auth.AuthStudent(api.RequestBorrowHandler)).Methods("POST")

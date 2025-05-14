@@ -32,6 +32,20 @@ func (api *api) AddLibrarianHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (api *api) ClearFineHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["id"]
+
+	err := api.db.ClearFine(uuid)
+	if err != nil {
+		http.Error(w, "Can't Clear fine in db", http.StatusInternalServerError)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (api *api) GetLibrarianHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["id"]
@@ -200,24 +214,24 @@ func (api *api) ReturnBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["id"]
 
-	err := api.db.DeleteBorrow(uuid)
+	err := api.db.ReturnBorrow(uuid)
 	if err != nil {
 		http.Error(w, "Can't delete the borrow from database", http.StatusBadRequest)
-		fmt.Print(err)
+		fmt.Printf("Can't delete the borrow from database, %v", err)
 		return
 	}
 
-	request, err := api.db.GetRequest(uuid)
+	borrow, err := api.db.GetBorrowFromUUId(uuid)
 	if err != nil {
 		http.Error(w, "Can't get request from db", http.StatusBadRequest)
-		fmt.Print(err)
+		fmt.Printf("Can't get request from db ,%v", err)
 		return
 	}
 
-	err = api.db.DeleteBorrow(request.UserId)
+	err = api.db.DecreaseStudentRented(borrow.UserId)
 	if err != nil {
 		http.Error(w, "Can't decrease number of rented books in database", http.StatusBadRequest)
-		fmt.Print(err)
+		fmt.Printf("Can't decrease number of rented books in database ,%v", err)
 		return
 	}
 

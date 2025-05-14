@@ -12,6 +12,7 @@ type Borrow struct {
 	UserId     string    `json:"userid"`
 	BorrowDate string    `json:"borrow_date"`
 	ReturnDate string    `json:"return_date"`
+	Returned   bool      `json:"returned"`
 }
 
 type BorrowWithBookName struct {
@@ -20,6 +21,10 @@ type BorrowWithBookName struct {
 	UserId     string    `json:"userid"`
 	BorrowDate string    `json:"borrow_date"`
 	ReturnDate string    `json:"return_date"`
+	Returned   bool      `json:"returned"`
+
+	BookName string `json:"book_name"`
+	Fine     int    `json:"fine"`
 }
 
 func NewBorrow(bookid string, userid string, days int) *Borrow {
@@ -32,5 +37,6 @@ func NewBorrow(bookid string, userid string, days int) *Borrow {
 		UserId:     userid,
 		BorrowDate: now.Format("2006 - 01 - 02"),
 		ReturnDate: returnDate.Format("2006 - 01 - 02"),
+		Returned:   false,
 	}
 }

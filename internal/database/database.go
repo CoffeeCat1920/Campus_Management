@@ -52,8 +52,14 @@ type Service interface {
 	// Borrow
 	AddBorrow(borrow *modals.Borrow) error
 	BorrowFine(uuid string, rate int) (int, error)
+	ReturnBorrow(uuid string) error
+	ClearFine(userid string) error
+	GetFineByUser(uuid string) (int, error)
+
 	DeleteBorrow(uuid string) error
 	GetBorrowsByUser(uuid string) ([]modals.Borrow, error)
+	GetBorrowsByUserWithBookName(uuid string) ([]modals.BorrowWithBookName, error)
+	GetBorrowFromUUId(uuid string) (*modals.Borrow, error)
 
 	// Request
 	AddRequest(request *modals.Request) error

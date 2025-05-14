@@ -39,11 +39,14 @@ type Api interface {
 	DeleteLibrarianHandler(w http.ResponseWriter, r *http.Request)
 	LoginLibrarianDataHandler(w http.ResponseWriter, r *http.Request)
 
+	ClearFineHandler(w http.ResponseWriter, r *http.Request)
+
 	// Borrow Handler
 	AddBorrowHandler(w http.ResponseWriter, r *http.Request)
 	BorrowFineHandler(w http.ResponseWriter, r *http.Request)
 	ReturnBookHandler(w http.ResponseWriter, r *http.Request)
 	GetBorrowByUserHandler(w http.ResponseWriter, r *http.Request)
+	GetFineByUser(w http.ResponseWriter, r *http.Request)
 
 	// Requests
 	RequestBorrowHandler(w http.ResponseWriter, r *http.Request)

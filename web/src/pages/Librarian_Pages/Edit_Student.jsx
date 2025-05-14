@@ -6,10 +6,11 @@ export default function Edit_Students() {
   const location = useLocation();
 
   const [requests, setRequests] = useState([]);
-  const [borrows, setBorrows] = useState([]); // <-- New state
+  const [borrows, setBorrows] = useState([]); // New state
   const [borrowCount, setBorrowCount] = useState(0);
   const [activeInputId, setActiveInputId] = useState(null);
   const [daysInput, setDaysInput] = useState("");
+  const [totalFine, setTotalFine] = useState(0); // State for total fine
 
   const studentName = location.state?.studentName;
 
@@ -41,6 +42,34 @@ export default function Edit_Students() {
       if (!res.ok) throw new Error("Failed to fetch borrows");
       const data = await res.json();
       setBorrows(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchTotalFine = async () => {
+    try {
+      const res = await fetch(`/librarian/fine/${id}`, {
+        method: "PATCH",
+      });
+      if (!res.ok) throw new Error("Failed to fetch total fine");
+      const data = await res.json();
+      setTotalFine(data); // Assume the API returns { fine: totalFine }
+      console.log(totalFine)
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  const handleReturn = async (borrowId) => {
+    try {
+      const res = await fetch(`/return_book/${borrowId}`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("Failed to return book");
+      fetchBorrows();  // Refresh the borrow list
+      fetchBorrowCount(); // Refresh borrow count
     } catch (err) {
       console.error(err);
     }
@@ -91,10 +120,23 @@ export default function Edit_Students() {
     setDaysInput("");
   };
 
+  const handleClearFine = async () => {
+    try {
+      const res = await fetch(`/librarian/clear_fine/${id}`, {
+        method: "PATCH",
+      });
+      if (!res.ok) throw new Error("Failed to clear fine");
+      setTotalFine(0); // Reset the fine in the UI
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchRequests();
     fetchBorrowCount();
     fetchBorrows();
+    fetchTotalFine(); // Fetch the total fine on component mount
   }, [id]);
 
   return (
@@ -109,6 +151,13 @@ export default function Edit_Students() {
         <p style={{ color: "red", fontWeight: "bold" }}>
           Max borrow limit reached (3)
         </p>
+      )}
+
+      {totalFine > 0 && (
+        <div style={{ marginTop: "10px", color: "red", fontWeight: "bold" }}>
+          <h4>Total Fine: Rs. {totalFine}</h4>
+          <button onClick={handleClearFine}>Clear Fine</button>
+        </div>
       )}
 
       <h4>Pending Requests</h4>
@@ -166,6 +215,7 @@ export default function Edit_Students() {
         ))}
       </ul>
 
+
       <h4 style={{ marginTop: "30px" }}>Borrowed Books</h4>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {borrows.length === 0 ? (
@@ -177,14 +227,29 @@ export default function Edit_Students() {
               style={{
                 padding: "8px 0",
                 borderBottom: "1px solid #ddd",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
               }}
             >
-              <div><strong>Borrowed:</strong> {borrow.borrow_date}</div>
-              <div><strong>Return By:</strong> {borrow.return_date}</div>
+              <div>
+                <div><strong>{borrow.book_name}</strong></div>
+                {borrow.fine > 0 && <div style={{ color: "red" }}>Fine: {borrow.fine}</div>}
+                <div><strong>Borrow Date:</strong> {borrow.borrow_date}</div>
+                <div><strong>Return By:</strong> {borrow.return_date}</div>
+              </div>
+
+              <button
+                style={{ padding: "6px 12px", cursor: "pointer" }}
+                onClick={() => handleReturn(borrow.uuid)}
+              >
+                Return
+              </button>
             </li>
           ))
         )}
       </ul>
+
     </div>
   );
 }

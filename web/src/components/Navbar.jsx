@@ -48,6 +48,7 @@ export default function Navbar() {
       {isLibrarianLogged && <Link to="/librarian/manage/books">Manage Books</Link>}
 
       {isStudentLogged && <Link to="/student/books">Explore Books</Link>}
+      {isStudentLogged && <Link to="/student/home">Home</Link>}
 
 
       {(isStudentLogged || isLibrarianLogged) && (
